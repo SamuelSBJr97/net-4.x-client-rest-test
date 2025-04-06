@@ -10,17 +10,17 @@ using System.Web;
 
 namespace ApiClient.Services
 {
-    public class ApiServerClientService
+    public class ApiRestsharpClientService
     {
-        public static ApiServerClientService API_CLIENT_SERVICE { get; private set; }
+        public static ApiRestsharpClientService API_REST_CLIENT_SERVICE { get; private set; }
 
-        static ApiServerClientService()
+        static ApiRestsharpClientService()
         {
             string uri = ConfigurationManager.AppSettings["HOST_API"];
             string login = ConfigurationManager.AppSettings["HOST_API_USER"];
             string senha = ConfigurationManager.AppSettings["HOST_API_PASS"];
 
-            API_CLIENT_SERVICE = new ApiServerClientService(uri, login, senha);
+            API_REST_CLIENT_SERVICE = new ApiRestsharpClientService(uri, login, senha);
         }
 
         private TokenResponse tokenResponse;
@@ -31,7 +31,7 @@ namespace ApiClient.Services
 
         private readonly object locker = new object();
 
-        public ApiServerClientService(string uri, string login, string senha)
+        public ApiRestsharpClientService(string uri, string login, string senha)
         {
             restClient = new RestClient(uri);
 
@@ -45,18 +45,17 @@ namespace ApiClient.Services
         #region Autenticação
         public void Autenticar()
         {
-
             // verifica se o token expirou
-            if (DateTime.Now >= tokenResponse?.ExpiresIn)
+            if (tokenResponse == null || DateTime.Now > tokenResponse?.ExpiresIn)
             {
                 // faz um request por vez para obter o token
                 lock (locker)
                 {
                     // verifica novamente se o token expirou ou vai expirar
-                    if (DateTime.Now >= tokenResponse?.ExpiresIn.AddMinutes(-1))
+                    if (tokenResponse == null || DateTime.Now > tokenResponse?.ExpiresIn)
                     {
                         var request = new RestRequest("Auth/Login", Method.POST, DataFormat.Json)
-                        .AddBody(tokenRequest);
+                        .AddJsonBody(tokenRequest);
 
                         var response = restClient.Post(request);
 
@@ -68,15 +67,12 @@ namespace ApiClient.Services
 
         private void SetAuthorizationHeader(RestRequest request)
         {
-            if (tokenResponse != null)
-            {
-                request.AddHeader("Authorization", "Bearer " + tokenResponse.AccessToken);
-            }
+            request.AddHeader("Authorization", "Bearer " + tokenResponse?.AccessToken);
         }
         #endregion
 
         #region Request helper
-        private RestRequest CreateRequest(string endpoint, Method method)
+        private RestRequest RequestAutenticado(string endpoint, Method method)
         {
             Autenticar();
 
@@ -88,12 +84,12 @@ namespace ApiClient.Services
         }
         private RestRequest CreateGetRequest(string endpoint)
         {
-            RestRequest request = CreateRequest(endpoint, Method.GET);
+            RestRequest request = RequestAutenticado(endpoint, Method.GET);
             return request;
         }
         private RestRequest CreateBodyRequest(string endpoint, Method method, ApiDataset body)
         {
-            var request = CreateRequest(endpoint, method);
+            var request = RequestAutenticado(endpoint, method);
 
             request.AddJsonBody(body);
 

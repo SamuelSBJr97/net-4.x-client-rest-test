@@ -11,33 +11,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Adicionar serviços ao contêiner.
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        In = ParameterLocation.Header,
-        Description = "Por favor, insira o token JWT com o prefixo 'Bearer '",
-        Name = "Authorization",
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer"
-    });
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            new string[] { }
-        }
-    });
-});
 
 // Obter as configurações do JwtSettings
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>() ?? throw new Exception("JwtSettings não está configurado corretamente.");
@@ -77,13 +50,6 @@ builder.Services.AddDbContext<ApiDbContext>(options =>
 builder.Services.AddHttpClient<RandomUserService>();
 
 var app = builder.Build();
-
-// Configurar o pipeline de requisição HTTP.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
 
 app.UseHttpsRedirection();
 

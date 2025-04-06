@@ -15,9 +15,14 @@ namespace ApiServer.Controllers
         private readonly ApiDbContext _context = apiDbContext;
 
         [HttpGet]
-        public IEnumerable<ApiDataset> Get()
+        public IEnumerable<ApiDataset> Get([FromQuery] string? key)
         {
-            return [.. _context.ApiDataset];
+            if (string.IsNullOrEmpty(key))
+            {
+                return [.. _context.ApiDataset];
+            }
+
+            return [.. _context.ApiDataset?.Where(_ => _.Key.Equals(key))];
         }
 
         [HttpPost]
