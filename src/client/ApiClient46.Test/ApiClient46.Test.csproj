@@ -12,4 +12,8 @@
     <TestingPlatformShowTestsFailure>true</TestingPlatformShowTestsFailure>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ApiClient46\ApiClient46.csproj" />
+  </ItemGroup>
+
 </Project>

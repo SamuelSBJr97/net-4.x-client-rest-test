@@ -1,4 +1,5 @@
 ﻿using ApiClient46.Models.Services;
+using ApiClient46.Services;
 using RestSharp;
 using System;
 using System.Collections.Generic;
@@ -6,23 +7,13 @@ using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 using System.Web;
 
 namespace ApiClient.Services
 {
-    public class ApiRestsharpClientService
+    public class ApiRestsharpClientService : IApiClientService
     {
-        public static ApiRestsharpClientService API_REST_CLIENT_SERVICE { get; private set; }
-
-        static ApiRestsharpClientService()
-        {
-            string uri = ConfigurationManager.AppSettings["HOST_API"];
-            string login = ConfigurationManager.AppSettings["HOST_API_USER"];
-            string senha = ConfigurationManager.AppSettings["HOST_API_PASS"];
-
-            API_REST_CLIENT_SERVICE = new ApiRestsharpClientService(uri, login, senha);
-        }
-
         private TokenResponse tokenResponse;
 
         private readonly RestClient restClient;
@@ -43,7 +34,7 @@ namespace ApiClient.Services
         }
 
         #region Autenticação
-        public void Autenticar()
+        private void Autenticar()
         {
             // verifica se o token expirou
             if (tokenResponse == null || DateTime.Now > tokenResponse?.ExpiresIn)
@@ -65,7 +56,7 @@ namespace ApiClient.Services
             }
         }
 
-        private void SetAuthorizationHeader(RestRequest request)
+        private void InserirBearerToken(RestRequest request)
         {
             request.AddHeader("Authorization", "Bearer " + tokenResponse?.AccessToken);
         }
@@ -78,16 +69,16 @@ namespace ApiClient.Services
 
             var request = new RestRequest(endpoint, method, DataFormat.Json);
 
-            SetAuthorizationHeader(request);
+            InserirBearerToken(request);
 
             return request;
         }
-        private RestRequest CreateGetRequest(string endpoint)
+        private RestRequest CreateGetRequestAutenticado(string endpoint)
         {
             RestRequest request = RequestAutenticado(endpoint, Method.GET);
             return request;
         }
-        private RestRequest CreateBodyRequest(string endpoint, Method method, ApiDataset body)
+        private RestRequest CreateBodyRequestAutenticado(string endpoint, Method method, object body)
         {
             var request = RequestAutenticado(endpoint, method);
 
@@ -98,9 +89,9 @@ namespace ApiClient.Services
         #endregion
 
         #region Request methods
-        public T Get<T>(string endpoint)
+        private T Get<T>(string endpoint)
         {
-            RestRequest request = CreateGetRequest(endpoint);
+            RestRequest request = CreateGetRequestAutenticado(endpoint);
 
             var response = restClient.Get(request);
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
@@ -112,9 +103,9 @@ namespace ApiClient.Services
                 throw new Exception("Error: " + response.StatusDescription);
             }
         }
-        public T Post<T>(string endpoint, ApiDataset body)
+        private T Post<T, E>(string endpoint, E body)
         {
-            var request = CreateBodyRequest(endpoint, Method.POST, body);
+            var request = CreateBodyRequestAutenticado(endpoint, Method.POST, body);
 
             var response = restClient.Execute(request);
 
@@ -127,9 +118,9 @@ namespace ApiClient.Services
                 throw new Exception("Error: " + response.StatusDescription);
             }
         }
-        public T Put<T>(string endpoint, ApiDataset body)
+        private T Put<T, E>(string endpoint, E body)
         {
-            var request = CreateBodyRequest(endpoint, Method.PUT, body);
+            var request = CreateBodyRequestAutenticado(endpoint, Method.PUT, body);
 
             var response = restClient.Execute(request);
 
@@ -146,9 +137,29 @@ namespace ApiClient.Services
 
         #region Api metodos
 
-        public IEnumerable<ApiDataset> GetAllApiDataset()
+        public string GetAllApiDataset()
         {
-            return Get<IEnumerable<ApiDataset>>("ApiDataset");
+            return Get<string>("ApiDataset");
+        }
+
+        public string GetApiDatasetByKey(string key)
+        {
+            return Get<string>("ApiDataset?key=" + SanitizeHelper.SanitizeKey(key));
+        }
+
+        public string GerarApiDatasetAleatoria(int total)
+        {
+            return Post<string, int>("ApiDatasetRandom", total);
+        }
+
+        public string CriarApiDataset(ApiDataset dataset)
+        {
+            return Post<string, ApiDataset>("ApiDataset", dataset);
+        }
+
+        public string AtualizarApiDataset(ApiDataset dataset)
+        {
+            return Put<string, ApiDataset>("ApiDataset", dataset);
         }
 
         #endregion
