@@ -31,7 +31,7 @@ namespace ApiServer.Controllers
             var _memoryDb = _context.ApiDataset.Add(apiDataset);
             _context.SaveChanges();
 
-            return CreatedAtAction(nameof(Post), new { key = _memoryDb.Entity.Key }, apiDataset);
+            return Ok();
         }
 
         [HttpPut]
@@ -44,7 +44,7 @@ namespace ApiServer.Controllers
 
             PutKey(apiDataset);
 
-            return NoContent();
+            return Ok();
         }
 
         private void PutKey(ApiDataset apiDataset)

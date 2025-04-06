@@ -4,7 +4,7 @@ namespace ApiClient46.Models.Services
 {
     public class TokenResponse
     {
-        public string Token { get; set; }
-        public DateTime ExpiresIn { get; set; }
+        public string token { get; set; }
+        public DateTime? expiresIn { get; set; }
     }
 }

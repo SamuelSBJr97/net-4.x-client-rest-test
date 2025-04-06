@@ -116,11 +116,7 @@ namespace ApiClient46.Test
         {
             var result = apiClientService.GerarApiDatasetAleatoria(10);
 
-            result = apiClientService.GetAllApiDataset();
-
-            Assert.IsNotNull(result);
-
-            var dataset = JsonConvert.DeserializeObject<IEnumerable<ApiDataset>>(result)?.ToArray();
+            var dataset = apiClientService.GetAllApiDataset()?.ToArray();
 
             Assert.IsTrue(dataset != null && dataset.Length > 0);
 
@@ -132,8 +128,13 @@ namespace ApiClient46.Test
 
                     data.Date = DateTime.UtcNow;
 
-                    var result = apiClientService.AtualizarApiDataset(data);
+                    apiClientService.AtualizarApiDataset(data);
 
+                    var result = apiClientService.GetApiDatasetByKey(data.Key)?.FirstOrDefault();
+
+                    Assert.IsNotNull(result);
+
+                    Assert.Equals(data, result);
                 }
                 catch (Exception ex)
                 {
@@ -147,7 +148,7 @@ namespace ApiClient46.Test
                 {
                     var data = dataset[i];
 
-                    var result = JsonConvert.DeserializeObject<ApiDataset>(apiClientService.GetApiDatasetByKey(data.Key));
+                    var result = apiClientService.GetApiDatasetByKey(data.Key);
 
                     Assert.IsNotNull(result);
 

@@ -1,5 +1,6 @@
 ﻿using ApiClient46.Models.Services;
 using ApiClient46.Services;
+using Newtonsoft.Json;
 using RestSharp;
 using System;
 using System.Collections.Generic;
@@ -9,6 +10,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Web;
+using System.Web.Script.Serialization;
 
 namespace ApiClient.Services
 {
@@ -22,6 +24,8 @@ namespace ApiClient.Services
 
         private readonly object locker = new object();
 
+        private JavaScriptSerializer jsSerializer;
+
         public ApiRestsharpClientService(string uri, string login, string senha)
         {
             restClient = new RestClient(uri);
@@ -31,26 +35,28 @@ namespace ApiClient.Services
                 username = login,
                 password = senha
             };
+
+            jsSerializer = new JavaScriptSerializer();
         }
 
         #region Autenticação
-        private void Autenticar()
+        public void Autenticar()
         {
             // verifica se o token expirou
-            if (tokenResponse == null || DateTime.Now > tokenResponse?.ExpiresIn)
+            if (tokenResponse == null || DateTime.Now > tokenResponse?.expiresIn)
             {
                 // faz um request por vez para obter o token
                 lock (locker)
                 {
                     // verifica novamente se o token expirou ou vai expirar
-                    if (tokenResponse == null || DateTime.Now > tokenResponse?.ExpiresIn)
+                    if (tokenResponse == null || DateTime.Now > tokenResponse?.expiresIn)
                     {
                         var request = new RestRequest("Auth/Login", Method.POST, DataFormat.Json)
                         .AddJsonBody(tokenRequest);
 
                         var response = restClient.Post(request);
 
-                        tokenResponse = SimpleJson.DeserializeObject<TokenResponse>(response.Content);
+                        tokenResponse = jsSerializer.Deserialize<TokenResponse>(response.Content);
                     }
                 }
             }
@@ -58,7 +64,7 @@ namespace ApiClient.Services
 
         private void InserirBearerToken(RestRequest request)
         {
-            request.AddHeader("Authorization", "Bearer " + tokenResponse?.AccessToken);
+            request.AddHeader("Authorization", "Bearer " + tokenResponse?.token);
         }
         #endregion
 
@@ -96,7 +102,7 @@ namespace ApiClient.Services
             var response = restClient.Get(request);
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                return SimpleJson.DeserializeObject<T>(response.Content);
+                return jsSerializer.Deserialize<T>(response.Content);
             }
             else
             {
@@ -111,7 +117,7 @@ namespace ApiClient.Services
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                return SimpleJson.DeserializeObject<T>(response.Content);
+                return jsSerializer.Deserialize<T>(response.Content);
             }
             else
             {
@@ -126,7 +132,7 @@ namespace ApiClient.Services
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                return SimpleJson.DeserializeObject<T>(response.Content);
+                return jsSerializer.Deserialize<T>(response.Content);
             }
             else
             {
@@ -137,14 +143,14 @@ namespace ApiClient.Services
 
         #region Api metodos
 
-        public string GetAllApiDataset()
+        public IEnumerable<ApiDataset> GetAllApiDataset()
         {
-            return Get<string>("ApiDataset");
+            return Get<IEnumerable<ApiDataset>>("ApiDataset");
         }
 
-        public string GetApiDatasetByKey(string key)
+        public IEnumerable<ApiDataset> GetApiDatasetByKey(string key)
         {
-            return Get<string>("ApiDataset?key=" + SanitizeHelper.SanitizeKey(key));
+            return Get<IEnumerable<ApiDataset>>("ApiDataset?key=" + SanitizeHelper.SanitizeKey(key));
         }
 
         public string GerarApiDatasetAleatoria(int total)

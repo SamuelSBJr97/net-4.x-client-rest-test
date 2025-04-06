@@ -1,4 +1,6 @@
 ﻿using ApiClient46.Models.Services;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace ApiClient.Services
 {
@@ -7,7 +9,8 @@ namespace ApiClient.Services
         string AtualizarApiDataset(ApiDataset dataset);
         string CriarApiDataset(ApiDataset dataset);
         string GerarApiDatasetAleatoria(int total);
-        string GetAllApiDataset();
-        string GetApiDatasetByKey(string key);
+        IEnumerable<ApiDataset> GetAllApiDataset();
+        IEnumerable<ApiDataset> GetApiDatasetByKey(string key);
+        void Autenticar();
     }
 }
