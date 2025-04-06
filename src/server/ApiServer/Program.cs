@@ -1,5 +1,8 @@
 using ApiServer.Jwt;
+using ApiServer.Repository;
+using ApiServer.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -7,8 +10,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Adicionar serviços ao contêiner.
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 // Obter as configurações do JwtSettings
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>() ?? throw new Exception("JwtSettings não está configurado corretamente.");
@@ -40,14 +41,14 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-var app = builder.Build();
+// Configurar o banco de dados em memória
+builder.Services.AddDbContext<ApiDbContext>(options =>
+    options.UseInMemoryDatabase("InMemoryDb"));
 
-// Configurar o pipeline de requisição HTTP.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// Registrar o serviço HTTP
+builder.Services.AddHttpClient<RandomUserService>();
+
+var app = builder.Build();
 
 app.UseHttpsRedirection();
 
