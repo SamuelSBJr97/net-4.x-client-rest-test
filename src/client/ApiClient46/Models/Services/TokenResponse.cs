@@ -1,0 +1,10 @@
+﻿using System;
+
+namespace ApiClient46.Models.Services
+{
+    public class TokenResponse
+    {
+        public string AccessToken { get; set; }
+        public DateTime ExpiresIn { get; set; }
+    }
+}

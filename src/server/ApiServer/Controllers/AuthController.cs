@@ -23,7 +23,7 @@ public class AuthController : ControllerBase
                 {
                     new Claim(ClaimTypes.Name, userLogin.Username)
                 }),
-                Expires = DateTime.UtcNow.AddMinutes(jwt.ExpirationMinutes),
+                Expires = DateTime.UtcNow.AddSeconds(Random.Shared.Next(1, jwt.ExpirationSeconds)),
                 Audience = jwt.Audience,
                 Issuer = jwt.Issuer,
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
