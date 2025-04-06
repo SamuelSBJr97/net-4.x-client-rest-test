@@ -17,13 +17,16 @@ public class AuthController : ControllerBase
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(jwt.SecretKey);
+
+            var tokenExpires = DateTime.Now.AddMinutes(Random.Shared.Next(1, jwt.ExpirationMinutes));
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimTypes.Name, userLogin.Username)
                 }),
-                Expires = DateTime.UtcNow.AddSeconds(Random.Shared.Next(1, jwt.ExpirationSeconds)),
+                Expires = tokenExpires.ToUniversalTime(),
                 Audience = jwt.Audience,
                 Issuer = jwt.Issuer,
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -31,7 +34,7 @@ public class AuthController : ControllerBase
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token);
 
-            return Ok(new { Token = tokenString });
+            return Ok(new { Token = tokenString, ExpiresIn = tokenExpires });
         }
 
         return Unauthorized();

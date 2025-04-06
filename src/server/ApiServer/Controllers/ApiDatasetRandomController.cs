@@ -16,13 +16,12 @@ namespace ApiServer.Controllers
         private readonly RandomUserService _randomUser = randomUser;
 
         [HttpPost]
-        public IActionResult Post([FromBody] int range = int.MaxValue)
+        public IActionResult Post([FromBody] int range = 100)
         {
             for (int i = 0; i < range; i++)
             {
                 _context.ApiDataset.Add(new ApiDataset
                 {
-                    Guid = Guid.NewGuid(),
                     Key = Guid.NewGuid().ToString(),
                     Date = DateTime.Now,
                     Group = Random.Shared.Next(int.MinValue, int.MaxValue).ToString(),

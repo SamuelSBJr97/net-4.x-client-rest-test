@@ -12,7 +12,7 @@ namespace ApiServer.Repository
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<ApiDataset>()
-                .HasKey(_ => _.Guid);
+                .HasKey(_ => _.Key);
         }
     }
 }
