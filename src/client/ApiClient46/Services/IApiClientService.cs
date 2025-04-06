@@ -11,6 +11,7 @@ namespace ApiClient.Services
         string GerarApiDatasetAleatoria(int total);
         IEnumerable<ApiDataset> GetAllApiDataset();
         IEnumerable<ApiDataset> GetApiDatasetByKey(string key);
-        void Autenticar();
+        TokenResponse Autenticar();
+        TokenResponse TokenAuth { get; }
     }
 }

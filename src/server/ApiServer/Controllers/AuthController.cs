@@ -18,7 +18,7 @@ public class AuthController : ControllerBase
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(jwt.SecretKey);
 
-            var tokenExpires = DateTime.Now.AddMinutes(Random.Shared.Next(1, jwt.ExpirationMinutes));
+            var tokenExpires = DateTime.Now.AddSeconds(Random.Shared.Next(1, jwt.ExpirationSeconds));
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {

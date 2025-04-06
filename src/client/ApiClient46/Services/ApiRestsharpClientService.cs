@@ -16,6 +16,8 @@ namespace ApiClient.Services
 {
     public class ApiRestsharpClientService : IApiClientService
     {
+        TokenResponse IApiClientService.TokenAuth => tokenResponse;
+
         private TokenResponse tokenResponse;
 
         private readonly RestClient restClient;
@@ -40,7 +42,7 @@ namespace ApiClient.Services
         }
 
         #region Autenticação
-        public void Autenticar()
+        public TokenResponse Autenticar()
         {
             // verifica se o token expirou
             if (tokenResponse == null || DateTime.Now > tokenResponse?.expiresIn)
@@ -60,6 +62,8 @@ namespace ApiClient.Services
                     }
                 }
             }
+
+            return tokenResponse;
         }
 
         private void InserirBearerToken(RestRequest request)

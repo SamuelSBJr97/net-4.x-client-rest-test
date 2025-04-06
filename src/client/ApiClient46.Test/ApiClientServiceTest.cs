@@ -6,6 +6,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ApiClient.Services;
 using Newtonsoft.Json;
 using ApiClient46.Models.Services;
+using System.Data;
+using System.Configuration;
 
 namespace ApiClient46.Test
 {
@@ -16,7 +18,51 @@ namespace ApiClient46.Test
 
         public ApiClientServiceTest()
         {
-            apiClientService = new ApiRestsharpClientService("https://localhost", "usuario", "senha");
+            string apiBaseUrl = ConfigurationManager.AppSettings["ApiBaseUrl"];
+            string apiUser = ConfigurationManager.AppSettings["ApiUser"];
+            string apiPassword = ConfigurationManager.AppSettings["ApiPassword"];
+
+            apiClientService = new ApiRestsharpClientService(apiBaseUrl, apiUser, apiPassword);
+        }
+
+        [TestMethod]
+        public void TestParallelRequestsAutenticar()
+        {
+            var tokenResponse = apiClientService.Autenticar();
+
+            Parallel.For(0, 10, i =>
+            {
+                try
+                {
+                    if (tokenResponse.expiresIn > DateTime.Now)
+                    {
+                        Thread.Sleep(tokenResponse.expiresIn.Value.Subtract(DateTime.Now));
+                    }
+
+                    var result = apiClientService.Autenticar();
+
+                    Assert.IsNotNull(result);
+
+                    if (tokenResponse.expiresIn > DateTime.Now)
+                    {
+                        Assert.IsTrue(result.token.Equals(tokenResponse.token));
+
+                        Assert.IsTrue(result.token.Equals(apiClientService.TokenAuth.token));
+                    }
+                    else if (tokenResponse.expiresIn < DateTime.Now)
+                    {
+                        Assert.IsFalse(result.token.Equals(tokenResponse.token));
+
+                        tokenResponse = result;
+                    }
+
+                    Assert.IsTrue(result.expiresIn > DateTime.Now);
+                }
+                catch (Exception ex)
+                {
+                    Assert.Fail($"Request {i} failed: {ex.Message}");
+                }
+            });
         }
 
         [TestMethod]
@@ -26,14 +72,9 @@ namespace ApiClient46.Test
             {
                 try
                 {
-                    // Medir o tempo de execução
-                    Stopwatch stopwatch = Stopwatch.StartNew();
                     var result = apiClientService.GetAllApiDataset();
-                    stopwatch.Stop();
 
-                    Assert.IsNotNull(result);
-                    Console.WriteLine($"Request {i} completed in {stopwatch.ElapsedMilliseconds} ms");
-
+                    Assert.IsTrue(result != null && result.Count() > 0);
                 }
                 catch (Exception ex)
                 {
@@ -49,13 +90,9 @@ namespace ApiClient46.Test
             {
                 try
                 {
-                    // Medir o tempo de execução
-                    Stopwatch stopwatch = Stopwatch.StartNew();
                     var result = apiClientService.GetAllApiDataset();
-                    stopwatch.Stop();
 
                     Assert.IsNotNull(result);
-                    Console.WriteLine($"Request {i} completed in {stopwatch.ElapsedMilliseconds} ms");
 
                 }
                 catch (Exception ex)
@@ -72,13 +109,9 @@ namespace ApiClient46.Test
             {
                 try
                 {
-                    // Medir o tempo de execução
-                    Stopwatch stopwatch = Stopwatch.StartNew();
                     var result = apiClientService.GetAllApiDataset();
-                    stopwatch.Stop();
 
                     Assert.IsNotNull(result);
-                    Console.WriteLine($"Request {i} completed in {stopwatch.ElapsedMilliseconds} ms");
 
                 }
                 catch (Exception ex)
@@ -95,13 +128,9 @@ namespace ApiClient46.Test
             {
                 try
                 {
-                    // Medir o tempo de execução
-                    Stopwatch stopwatch = Stopwatch.StartNew();
                     var result = apiClientService.GerarApiDatasetAleatoria(10);
-                    stopwatch.Stop();
 
                     Assert.IsNotNull(result);
-                    Console.WriteLine($"Request {i} completed in {stopwatch.ElapsedMilliseconds} ms");
 
                 }
                 catch (Exception ex)
