@@ -154,12 +154,12 @@ namespace ApiClient.Services
 
         public IEnumerable<ApiDataset> GetApiDatasetByKey(string key)
         {
-            return Get<IEnumerable<ApiDataset>>("ApiDataset?key=" + SanitizeHelper.SanitizeKey(key));
+            return Get<IEnumerable<ApiDataset>>("ApiDataset?key=" + SanitizeHelper.SanitizarParametro(key));
         }
 
-        public string GerarApiDatasetAleatoria(int total)
+        public string GenerateRandom(int total)
         {
-            return Post<string, int>("ApiDatasetRandom", total);
+            return Post<string, int>("ApiDatasetRandom/GenerateRandom", total);
         }
 
         public string CriarApiDataset(ApiDataset dataset)
@@ -170,6 +170,11 @@ namespace ApiClient.Services
         public string AtualizarApiDataset(ApiDataset dataset)
         {
             return Put<string, ApiDataset>("ApiDataset", dataset);
+        }
+
+        public IEnumerable<ApiDataset> GetRandomApiDataset(int total)
+        {
+            return Get<IEnumerable<ApiDataset>>("ApiDatasetRandom/GetRandomApiDataset?total=" + total);
         }
 
         #endregion

@@ -8,7 +8,8 @@ namespace ApiClient.Services
     {
         string AtualizarApiDataset(ApiDataset dataset);
         string CriarApiDataset(ApiDataset dataset);
-        string GerarApiDatasetAleatoria(int total);
+        string GenerateRandom(int total);
+        IEnumerable<ApiDataset> GetRandomApiDataset(int total);
         IEnumerable<ApiDataset> GetAllApiDataset();
         IEnumerable<ApiDataset> GetApiDatasetByKey(string key);
         TokenResponse Autenticar();

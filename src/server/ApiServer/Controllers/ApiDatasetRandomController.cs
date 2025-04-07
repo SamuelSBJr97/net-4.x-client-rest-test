@@ -15,18 +15,12 @@ namespace ApiServer.Controllers
         private readonly ApiDbContext _context = apiDbContext;
         private readonly RandomUserService _randomUser = randomUser;
 
-        [HttpPost]
-        public IActionResult Post([FromBody] int range = 100)
+        [HttpPost("GenerateRandom")]
+        public IActionResult GenerateRandom([FromBody] int total = 100)
         {
-            for (int i = 0; i < range; i++)
+            foreach (var item in GetRandomApiDataset(total))
             {
-                _context.ApiDataset.Add(new ApiDataset
-                {
-                    Key = Guid.NewGuid().ToString(),
-                    Date = DateTime.Now,
-                    Group = Random.Shared.Next(int.MinValue, int.MaxValue).ToString(),
-                    Value = GetRandomString() ?? "",
-                });
+                _context.ApiDataset.Add(item);
             }
 
             _context.SaveChanges();
@@ -34,7 +28,45 @@ namespace ApiServer.Controllers
             return Ok();
         }
 
-        private string? GetRandomString()
+        [HttpGet("GetRandomApiDataset")]
+        public IEnumerable<ApiDataset> GetRandomApiDataset([FromQuery] int total = 100)
+        {
+            ApiDataset[] apiDatasets = new ApiDataset[total];
+
+            for (int i = 0; i < total; i++)
+            {
+                apiDatasets[i] = new ApiDataset
+                {
+                    Key = GetRandomKey(),
+                    Date = GetRandomDate(),
+                    Group = GetRandomGroup(),
+                    Value = GetRandomString(),
+                };
+            }
+
+            return apiDatasets;
+        }
+
+        [HttpGet("GetRandomDate")]
+        public DateTime GetRandomDate()
+        {
+            return DateTime.UtcNow.AddMinutes(Random.Shared.Next(-1000, 1000));
+        }
+
+        [HttpGet("GetRandomKey")]
+        public string GetRandomKey()
+        {
+            return Guid.NewGuid().ToString();
+        }
+
+        [HttpGet("GetRandomGroup")]
+        public string? GetRandomGroup()
+        {
+            return Random.Shared.Next(int.MinValue, int.MaxValue).ToString();
+        }
+
+        [HttpGet("GetRandomString")]
+        public string? GetRandomString()
         {
             try
             {

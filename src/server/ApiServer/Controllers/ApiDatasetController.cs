@@ -60,10 +60,10 @@ namespace ApiServer.Controllers
         private void ChangeDataset(ApiDataset apiDataset, ApiDataset existingDataset)
         {
             // Update the existing dataset with the new values
-            existingDataset.Date = apiDataset.Date;
-            existingDataset.Group = apiDataset.Group;
-            existingDataset.Key = apiDataset.Key;
-            existingDataset.Value = apiDataset.Value;
+            existingDataset.Date = apiDataset.Date ?? existingDataset.Date;
+            existingDataset.Group = apiDataset.Group ?? existingDataset.Group;
+            existingDataset.Key = apiDataset.Key ?? existingDataset.Key;
+            existingDataset.Value = apiDataset.Value ?? existingDataset.Value;
 
             _context.SaveChanges();
         }

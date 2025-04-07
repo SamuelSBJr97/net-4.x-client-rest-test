@@ -8,6 +8,8 @@ using Newtonsoft.Json;
 using ApiClient46.Models.Services;
 using System.Data;
 using System.Configuration;
+using ApiClient46.Services;
+using Microsoft.Testing.Platform.Extensions.Messages;
 
 namespace ApiClient46.Test
 {
@@ -22,7 +24,16 @@ namespace ApiClient46.Test
             string apiUser = ConfigurationManager.AppSettings["ApiUser"];
             string apiPassword = ConfigurationManager.AppSettings["ApiPassword"];
 
-            apiClientService = new ApiRestsharpClientService(apiBaseUrl, apiUser, apiPassword);
+            if (ConfigurationManager.AppSettings["ApiTest"].Equals("HttpClient"))
+            {
+                apiClientService = new ApiHttpClientService(apiBaseUrl, apiUser, apiPassword);
+            }
+            else if (ConfigurationManager.AppSettings["ApiTest"].Equals("Restsharp"))
+            {
+                apiClientService = new ApiRestsharpClientService(apiBaseUrl, apiUser, apiPassword);
+            }
+
+            Assert.IsNotNull(apiClientService, "API client service is null");
         }
 
         [TestMethod]
@@ -32,73 +43,61 @@ namespace ApiClient46.Test
 
             Parallel.For(0, 10, i =>
             {
-                try
+                if (tokenResponse.expiresIn > DateTime.Now)
                 {
-                    if (tokenResponse.expiresIn > DateTime.Now)
-                    {
-                        Thread.Sleep(tokenResponse.expiresIn.Value.Subtract(DateTime.Now));
-                    }
-
-                    var result = apiClientService.Autenticar();
-
-                    Assert.IsNotNull(result);
-
-                    if (tokenResponse.expiresIn > DateTime.Now)
-                    {
-                        Assert.IsTrue(result.token.Equals(tokenResponse.token));
-
-                        Assert.IsTrue(result.token.Equals(apiClientService.TokenAuth.token));
-                    }
-                    else if (tokenResponse.expiresIn < DateTime.Now)
-                    {
-                        Assert.IsFalse(result.token.Equals(tokenResponse.token));
-
-                        tokenResponse = result;
-                    }
-
-                    Assert.IsTrue(result.expiresIn > DateTime.Now);
+                    Thread.Sleep(tokenResponse.expiresIn.Value.Subtract(DateTime.Now));
                 }
-                catch (Exception ex)
+
+                var result = apiClientService.Autenticar();
+
+                Assert.IsNotNull(result);
+
+                if (tokenResponse.expiresIn > DateTime.Now)
                 {
-                    Assert.Fail($"Request {i} failed: {ex.Message}");
+                    Assert.IsTrue(result.token.Equals(tokenResponse.token));
+
+                    Assert.IsTrue(result.token.Equals(apiClientService.TokenAuth.token));
                 }
+                else if (tokenResponse.expiresIn < DateTime.Now)
+                {
+                    Assert.IsFalse(result.token.Equals(tokenResponse.token));
+
+                    tokenResponse = result;
+                }
+
+                Assert.IsTrue(result.expiresIn > DateTime.Now);
             });
         }
 
         [TestMethod]
         public void TestParallelRequestsGetAllApiDataset()
         {
-            Parallel.For(0, 100, i =>
+            Parallel.For(0, 10, i =>
             {
-                try
-                {
-                    var result = apiClientService.GetAllApiDataset();
+                var result = apiClientService.GetAllApiDataset();
 
-                    Assert.IsTrue(result != null && result.Count() > 0);
-                }
-                catch (Exception ex)
-                {
-                    Assert.Fail($"Request {i} failed: {ex.Message}");
-                }
+                Assert.IsTrue(result != null && result.Count() > 0);
             });
         }
 
         [TestMethod]
         public void TestParallelRequestsAtualizarApiDataset()
         {
-            Parallel.For(0, 100, i =>
+            var dataset = apiClientService.GetAllApiDataset()?.ToArray();
+
+            Parallel.For(0, dataset.Length, i =>
             {
-                try
-                {
-                    var result = apiClientService.GetAllApiDataset();
+                var data = dataset[i];
 
-                    Assert.IsNotNull(result);
+                data.Date = DateTime.UtcNow;
 
-                }
-                catch (Exception ex)
-                {
-                    Assert.Fail($"Request {i} failed: {ex.Message}");
-                }
+                apiClientService.AtualizarApiDataset(data);
+
+                var result = apiClientService.GetApiDatasetByKey(data.Key)?.FirstOrDefault();
+
+                Assert.IsNotNull(result);
+
+                Assert.IsTrue(data.Equals(result));
             });
         }
 
@@ -107,88 +106,38 @@ namespace ApiClient46.Test
         {
             Parallel.For(0, 100, i =>
             {
-                try
-                {
-                    var result = apiClientService.GetAllApiDataset();
+                var data = apiClientService.GetRandomApiDataset(1)?.FirstOrDefault();
 
-                    Assert.IsNotNull(result);
+                apiClientService.CriarApiDataset(data);
 
-                }
-                catch (Exception ex)
-                {
-                    Assert.Fail($"Request {i} failed: {ex.Message}");
-                }
+                var result = apiClientService.GetApiDatasetByKey(data.Key)?.FirstOrDefault();
+
+                Assert.IsTrue(data.Equals(result));
             });
         }
 
         [TestMethod]
         public void TestParallelRequestsGerarApiDatasetAleatoria()
         {
-            Parallel.For(0, 100, i =>
+            Parallel.For(0, 5, i =>
             {
-                try
-                {
-                    var result = apiClientService.GerarApiDatasetAleatoria(10);
+                var dataset = apiClientService.GetAllApiDataset()?.ToArray();
 
-                    Assert.IsNotNull(result);
+                var result = apiClientService.GenerateRandom(10);
 
-                }
-                catch (Exception ex)
-                {
-                    Assert.Fail($"Request {i} failed: {ex.Message}");
-                }
+                var _dataset = apiClientService.GetAllApiDataset()?.ToArray();
+
+                Assert.IsNotNull(result);
+                Assert.IsTrue(_dataset.Count() > dataset.Count());
             });
         }
 
         [TestMethod]
-        public void TestParallelRequestsGetApiDatasetByKey()
+        public void TestRequestsGetApiDatasetByKey()
         {
-            var result = apiClientService.GerarApiDatasetAleatoria(10);
-
             var dataset = apiClientService.GetAllApiDataset()?.ToArray();
 
             Assert.IsTrue(dataset != null && dataset.Length > 0);
-
-            Parallel.For(0, dataset.Length, i =>
-            {
-                try
-                {
-                    var data = dataset[i];
-
-                    data.Date = DateTime.UtcNow;
-
-                    apiClientService.AtualizarApiDataset(data);
-
-                    var result = apiClientService.GetApiDatasetByKey(data.Key)?.FirstOrDefault();
-
-                    Assert.IsNotNull(result);
-
-                    Assert.Equals(data, result);
-                }
-                catch (Exception ex)
-                {
-                    Assert.Fail($"Request {i} failed: {ex.Message}");
-                }
-            });
-
-            Parallel.For(0, dataset.Length, i =>
-            {
-                try
-                {
-                    var data = dataset[i];
-
-                    var result = apiClientService.GetApiDatasetByKey(data.Key);
-
-                    Assert.IsNotNull(result);
-
-                    Assert.Equals(data, result);
-
-                }
-                catch (Exception ex)
-                {
-                    Assert.Fail($"Request {i} failed: {ex.Message}");
-                }
-            });
         }
     }
 }

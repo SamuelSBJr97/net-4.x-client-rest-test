@@ -8,7 +8,7 @@ namespace ApiClient46.Services
 {
     public static class SanitizeHelper
     {
-        public static string SanitizeKey(string key)
+        public static string SanitizarParametro(string key)
         {
             // Permitir apenas caracteres [a-z], [0-9] e [-]
             string sanitizedKey = Regex.Replace(key, @"[^a-z0-9-]", "", RegexOptions.IgnoreCase);
