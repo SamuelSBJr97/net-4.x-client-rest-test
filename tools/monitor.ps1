@@ -1,9 +1,14 @@
 # Configuração do executável e do intervalo de monitoramento
 $executablePath = "C:\Users\samue\source\repos\SamuelSBJr97\net-4.x-client-rest-test\src\client\ApiClient46.Test\bin\Debug\net462\ApiClient46.Test.exe"
-$logFilePath = "C:\Users\samue\source\repos\SamuelSBJr97\net-4.x-client-rest-test\tools\monitor_log.txt"
+$logDirectory = "C:\Users\samue\source\repos\SamuelSBJr97\net-4.x-client-rest-test\tools\logs"
 $stdoutLogFile = "C:\Users\samue\source\repos\SamuelSBJr97\net-4.x-client-rest-test\tools\executable_stdout_log.txt"
 $stderrLogFile = "C:\Users\samue\source\repos\SamuelSBJr97\net-4.x-client-rest-test\tools\executable_stderr_log.txt"
-$intervalSeconds = 60 # 5 minutos
+$intervalSeconds = 60 # 1 minuto
+
+# Garantir que o diretório de logs exista
+if (!(Test-Path -Path $logDirectory)) {
+    New-Item -ItemType Directory -Path $logDirectory | Out-Null
+}
 
 # Iniciar o executável e redirecionar saída padrão e de erro para arquivos separados
 Start-Process -FilePath $executablePath -NoNewWindow -RedirectStandardOutput $stdoutLogFile -RedirectStandardError $stderrLogFile
@@ -24,7 +29,8 @@ function Get-ProcessInfo {
 # Loop de monitoramento
 while ($true) {
     # Obter data e hora atual
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
+    $logFilePath = Join-Path -Path $logDirectory -ChildPath "monitor_log_$timestamp.txt"
 
     # Obter informações de portas abertas
     $netstat = netstat -an | Select-String "LISTENING"
