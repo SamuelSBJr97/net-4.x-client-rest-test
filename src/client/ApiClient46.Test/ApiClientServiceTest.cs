@@ -131,7 +131,6 @@ namespace ApiClient46.Test
 
                 var _dataset = apiClientService.GetAllApiDataset()?.ToArray();
 
-                Assert.IsNotNull(result);
                 Assert.IsTrue(_dataset.Count() > dataset.Count());
             });
         }

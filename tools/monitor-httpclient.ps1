@@ -1,8 +1,8 @@
 # Configuração do executável e do intervalo de monitoramento
-$executablePath = "C:\Users\samue\source\repos\SamuelSBJr97\net-4.x-client-rest-test\src\client\ApiClient46.Test\bin\Debug\net462\ApiClient46.Test.exe"
-$logDirectory = "C:\Users\samue\source\repos\SamuelSBJr97\net-4.x-client-rest-test\tools\logs"
-$stdoutLogFile = "C:\Users\samue\source\repos\SamuelSBJr97\net-4.x-client-rest-test\tools\logs\executable_stdout_log.txt"
-$stderrLogFile = "C:\Users\samue\source\repos\SamuelSBJr97\net-4.x-client-rest-test\tools\logs\executable_stderr_log.txt"
+$executablePath = "C:\Users\samue\source\repos\SamuelSBJr97\net-4.x-client-rest-test\src\client\ApiClient46.Test\bin\Release\net462.HttpClient\ApiClient46.Test.exe"
+$logDirectory = "C:\Users\samue\source\repos\SamuelSBJr97\net-4.x-client-rest-test\tools\logs\net462.HttpClient"
+$stdoutLogFile = "C:\Users\samue\source\repos\SamuelSBJr97\net-4.x-client-rest-test\tools\logs\net462.HttpClient\executable_stdout_log.txt"
+$stderrLogFile = "C:\Users\samue\source\repos\SamuelSBJr97\net-4.x-client-rest-test\tools\logs\net462.HttpClient\executable_stderr_log.txt"
 $intervalSeconds = 60 # 1 minuto
 
 # Garantir que o diretório de logs exista
@@ -29,7 +29,8 @@ function Get-ProcessInfo {
 # Loop de monitoramento
 while ($true) {
     # Obter data e hora atual
-    $timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
+    $timestamp = Get-Date -Format "yyyy-MM-dd"
+    $timestampH = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     $logFilePath = Join-Path -Path $logDirectory -ChildPath "monitor_log_$timestamp.txt"
 
     # Obter informações de portas abertas
@@ -47,9 +48,7 @@ while ($true) {
     # Escrever no log
     if ($processInfo) {
         $logEntry = @"
-Timestamp: $timestamp
-Open Ports:
-$($listeningPorts -join "`n")
+Timestamp: $timestampH
 Established Connections (Requests): $establishedConnections
 CPU Usage: $($processInfo.CPU) seconds
 Memory Usage: $($processInfo.Memory) MB
