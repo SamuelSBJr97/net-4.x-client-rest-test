@@ -39,40 +39,43 @@ namespace ApiClient46.Test
         [TestMethod]
         public void TestParallelRequestsAutenticar()
         {
-            var tokenResponse = apiClientService.Autenticar();
-
-            Parallel.For(0, 10, i =>
+            Parallel.For(0, 1000, x =>
             {
-                if (tokenResponse.expiresIn > DateTime.Now)
+                var tokenResponse = apiClientService.Autenticar();
+
+                Parallel.For(0, 1000, i =>
                 {
-                    Thread.Sleep(tokenResponse.expiresIn.Value.Subtract(DateTime.Now));
-                }
+                    if (tokenResponse.expiresIn > DateTime.Now)
+                    {
+                        Thread.Sleep(tokenResponse.expiresIn.Value.Subtract(DateTime.Now));
+                    }
 
-                var result = apiClientService.Autenticar();
+                    var result = apiClientService.Autenticar();
 
-                Assert.IsNotNull(result);
+                    Assert.IsNotNull(result);
 
-                if (tokenResponse.expiresIn > DateTime.Now)
-                {
-                    Assert.IsTrue(result.token.Equals(tokenResponse.token));
+                    if (tokenResponse.expiresIn > DateTime.Now)
+                    {
+                        Assert.IsTrue(result.token.Equals(tokenResponse.token));
 
-                    Assert.IsTrue(result.token.Equals(apiClientService.TokenAuth.token));
-                }
-                else if (tokenResponse.expiresIn < DateTime.Now)
-                {
-                    Assert.IsFalse(result.token.Equals(tokenResponse.token));
+                        Assert.IsTrue(result.token.Equals(apiClientService.TokenAuth.token));
+                    }
+                    else if (tokenResponse.expiresIn < DateTime.Now)
+                    {
+                        Assert.IsFalse(result.token.Equals(tokenResponse.token));
 
-                    tokenResponse = result;
-                }
+                        tokenResponse = result;
+                    }
 
-                Assert.IsTrue(result.expiresIn > DateTime.Now);
+                    Assert.IsTrue(result.expiresIn > DateTime.Now);
+                });
             });
         }
 
         [TestMethod]
         public void TestParallelRequestsGetAllApiDataset()
         {
-            Parallel.For(0, 10, i =>
+            Parallel.For(0, 1000, i =>
             {
                 var result = apiClientService.GetAllApiDataset();
 
@@ -83,28 +86,31 @@ namespace ApiClient46.Test
         [TestMethod]
         public void TestParallelRequestsAtualizarApiDataset()
         {
-            var dataset = apiClientService.GetAllApiDataset()?.ToArray();
-
-            Parallel.For(0, dataset.Length, i =>
+            Parallel.For(0, 1000, i =>
             {
-                var data = dataset[i];
+                var dataset = apiClientService.GetAllApiDataset()?.ToArray();
 
-                data.Date = DateTime.UtcNow;
+                Parallel.For(0, dataset.Length, i =>
+                {
+                    var data = dataset[i];
 
-                apiClientService.AtualizarApiDataset(data);
+                    data.Date = DateTime.UtcNow;
 
-                var result = apiClientService.GetApiDatasetByKey(data.Key)?.FirstOrDefault();
+                    apiClientService.AtualizarApiDataset(data);
 
-                Assert.IsNotNull(result);
+                    var result = apiClientService.GetApiDatasetByKey(data.Key)?.FirstOrDefault();
 
-                Assert.IsTrue(data.Equals(result));
+                    Assert.IsNotNull(result);
+
+                    Assert.IsTrue(data.Equals(result));
+                });
             });
         }
 
         [TestMethod]
         public void TestParallelRequestsCriarApiDataset()
         {
-            Parallel.For(0, 100, i =>
+            Parallel.For(0, 10000, i =>
             {
                 var data = apiClientService.GetRandomApiDataset(1)?.FirstOrDefault();
 
@@ -119,7 +125,7 @@ namespace ApiClient46.Test
         [TestMethod]
         public void TestParallelRequestsGerarApiDatasetAleatoria()
         {
-            Parallel.For(0, 5, i =>
+            Parallel.For(0, 1000, i =>
             {
                 var dataset = apiClientService.GetAllApiDataset()?.ToArray();
 
