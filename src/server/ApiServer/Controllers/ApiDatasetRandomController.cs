@@ -70,7 +70,7 @@ namespace ApiServer.Controllers
         {
             try
             {
-                return _randomUser.GetRandomUserAsync().Result;
+                return _randomUser.GetRandomUserAsync().Result[..100];
             }
             catch
             {
