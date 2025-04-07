@@ -1,8 +1,8 @@
 # Configuração do executável e do intervalo de monitoramento
 $executablePath = "C:\Users\samue\source\repos\SamuelSBJr97\net-4.x-client-rest-test\src\client\ApiClient46.Test\bin\Debug\net462\ApiClient46.Test.exe"
 $logDirectory = "C:\Users\samue\source\repos\SamuelSBJr97\net-4.x-client-rest-test\tools\logs"
-$stdoutLogFile = "C:\Users\samue\source\repos\SamuelSBJr97\net-4.x-client-rest-test\tools\executable_stdout_log.txt"
-$stderrLogFile = "C:\Users\samue\source\repos\SamuelSBJr97\net-4.x-client-rest-test\tools\executable_stderr_log.txt"
+$stdoutLogFile = "C:\Users\samue\source\repos\SamuelSBJr97\net-4.x-client-rest-test\tools\logs\executable_stdout_log.txt"
+$stderrLogFile = "C:\Users\samue\source\repos\SamuelSBJr97\net-4.x-client-rest-test\tools\logs\executable_stderr_log.txt"
 $intervalSeconds = 60 # 1 minuto
 
 # Garantir que o diretório de logs exista
