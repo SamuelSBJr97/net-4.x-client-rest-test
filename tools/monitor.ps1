@@ -3,7 +3,7 @@ $executablePath = "C:\Users\samue\source\repos\SamuelSBJr97\net-4.x-client-rest-
 $logFilePath = "C:\Users\samue\source\repos\SamuelSBJr97\net-4.x-client-rest-test\tools\monitor_log.txt"
 $stdoutLogFile = "C:\Users\samue\source\repos\SamuelSBJr97\net-4.x-client-rest-test\tools\executable_stdout_log.txt"
 $stderrLogFile = "C:\Users\samue\source\repos\SamuelSBJr97\net-4.x-client-rest-test\tools\executable_stderr_log.txt"
-$intervalSeconds = 300 # 5 minutos
+$intervalSeconds = 60 # 5 minutos
 
 # Iniciar o executável e redirecionar saída padrão e de erro para arquivos separados
 Start-Process -FilePath $executablePath -NoNewWindow -RedirectStandardOutput $stdoutLogFile -RedirectStandardError $stderrLogFile
