@@ -33,7 +33,13 @@ while ($true) {
     $logFilePath = Join-Path -Path $logDirectory -ChildPath "monitor_log_$timestamp.txt"
 
     # Obter informações de portas abertas
-    $netstat = netstat -an | Select-String "LISTENING"
+    $netstat = netstat -an
+
+    # Contar conexões estabelecidas (requests)
+    $establishedConnections = ($netstat | Select-String "ESTABLISHED").Count
+
+    # Filtrar apenas conexões em estado LISTENING
+    $listeningPorts = $netstat
 
     # Obter informações de uso de CPU e memória
     $processInfo = Get-ProcessInfo
@@ -43,7 +49,8 @@ while ($true) {
         $logEntry = @"
 Timestamp: $timestamp
 Open Ports:
-$($netstat -join "`n")
+$($listeningPorts -join "`n")
+Established Connections (Requests): $establishedConnections
 CPU Usage: $($processInfo.CPU) seconds
 Memory Usage: $($processInfo.Memory) MB
 "@
