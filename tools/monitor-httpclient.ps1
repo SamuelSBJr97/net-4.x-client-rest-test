@@ -1,5 +1,5 @@
 # Configuração do executável e do intervalo de monitoramento
-$executablePath = "C:\Users\samue\source\repos\SamuelSBJr97\net-4.x-client-rest-test\src\client\ApiClient46.Test\bin\Release\net462.HttpClient\ApiClient46.Test.exe"
+$executablePath = "C:\Users\samue\source\repos\SamuelSBJr97\net-4.x-client-rest-test\src\client\ApiClient46.Test\bin\Release\net462.HttpClient\publish\ApiClient46.Test.exe"
 $logDirectory = "C:\Users\samue\source\repos\SamuelSBJr97\net-4.x-client-rest-test\tools\logs\net462.HttpClient"
 $stdoutLogFile = "C:\Users\samue\source\repos\SamuelSBJr97\net-4.x-client-rest-test\tools\logs\net462.HttpClient\executable_stdout_log.txt"
 $stderrLogFile = "C:\Users\samue\source\repos\SamuelSBJr97\net-4.x-client-rest-test\tools\logs\net462.HttpClient\executable_stderr_log.txt"

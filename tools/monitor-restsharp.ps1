@@ -1,5 +1,5 @@
 # Configuração do executável e do intervalo de monitoramento
-$executablePath = "C:\Users\samue\source\repos\SamuelSBJr97\net-4.x-client-rest-test\src\client\ApiClient46.Test\bin\Release\net462.Restsharp\ApiClient46.Test.exe"
+$executablePath = "C:\Users\samue\source\repos\SamuelSBJr97\net-4.x-client-rest-test\src\client\ApiClient46.Test\bin\Release\net462.Restsharp\publish\ApiClient46.Test.exe"
 $logDirectory = "C:\Users\samue\source\repos\SamuelSBJr97\net-4.x-client-rest-test\tools\logs\net462.Restsharp"
 $stdoutLogFile = "C:\Users\samue\source\repos\SamuelSBJr97\net-4.x-client-rest-test\tools\logs\net462.Restsharp\executable_stdout_log.txt"
 $stderrLogFile = "C:\Users\samue\source\repos\SamuelSBJr97\net-4.x-client-rest-test\tools\logs\net462.Restsharp\executable_stderr_log.txt"
