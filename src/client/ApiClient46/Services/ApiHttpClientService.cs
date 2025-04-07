@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Web;
 using System.Web.Script.Serialization;
@@ -35,6 +36,8 @@ namespace ApiClient46.Services
                 username = login,
                 password = senha
             };
+
+            ServicePointManager.DefaultConnectionLimit = 1000;
         }
 
         public TokenResponse Autenticar()
