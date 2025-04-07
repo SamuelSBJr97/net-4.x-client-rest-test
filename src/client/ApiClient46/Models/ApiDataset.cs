@@ -17,7 +17,7 @@ namespace ApiClient46.Models.Services
             if (other == null)
                 return false;
             return Key.Equals(other.Key) &&
-                   Date == other.Date &&
+                   Date.Equals(other.Date) &&
                    Group.Equals(other.Group) &&
                    Value.Equals(other.Value);
         }

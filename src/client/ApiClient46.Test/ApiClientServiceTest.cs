@@ -141,9 +141,12 @@ namespace ApiClient46.Test
         [TestMethod]
         public void TestRequestsGetApiDatasetByKey()
         {
-            var dataset = apiClientService.GetAllApiDataset()?.ToArray();
+            Parallel.For(0, 1000, i =>
+            {
+                var dataset = apiClientService.GetAllApiDataset()?.ToArray();
 
-            Assert.IsTrue(dataset != null && dataset.Length > 0);
+                Assert.IsTrue(dataset != null && dataset.Length > 0);
+            });
         }
     }
 }
