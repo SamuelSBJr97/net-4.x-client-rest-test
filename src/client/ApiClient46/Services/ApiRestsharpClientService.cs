@@ -26,8 +26,6 @@ namespace ApiClient.Services
 
         private readonly object locker = new object();
 
-        private JavaScriptSerializer jsSerializer;
-
         public ApiRestsharpClientService(string uri, string login, string senha)
         {
             restClient = new RestClient(uri);
@@ -37,8 +35,6 @@ namespace ApiClient.Services
                 username = login,
                 password = senha
             };
-
-            jsSerializer = new JavaScriptSerializer();
         }
 
         #region Autenticação
@@ -56,9 +52,9 @@ namespace ApiClient.Services
                         var request = new RestRequest("Auth/Login", Method.POST, DataFormat.Json)
                         .AddJsonBody(tokenRequest);
 
-                        var response = restClient.Post(request);
+                        var response = restClient.Post<TokenResponse>(request);
 
-                        tokenResponse = jsSerializer.Deserialize<TokenResponse>(response.Content);
+                        tokenResponse = response.Data;
                     }
                 }
             }
@@ -103,10 +99,10 @@ namespace ApiClient.Services
         {
             RestRequest request = CreateGetRequestAutenticado(endpoint);
 
-            var response = restClient.Get(request);
+            var response = restClient.Get<T>(request);
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                return jsSerializer.Deserialize<T>(response.Content);
+                return response.Data;
             }
             else
             {
@@ -117,11 +113,11 @@ namespace ApiClient.Services
         {
             var request = CreateBodyRequestAutenticado(endpoint, Method.POST, body);
 
-            var response = restClient.Execute(request);
+            var response = restClient.Post<T>(request);
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                return jsSerializer.Deserialize<T>(response.Content);
+                return response.Data;
             }
             else
             {
@@ -132,11 +128,11 @@ namespace ApiClient.Services
         {
             var request = CreateBodyRequestAutenticado(endpoint, Method.PUT, body);
 
-            var response = restClient.Execute(request);
+            var response = restClient.Put<T>(request);
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                return jsSerializer.Deserialize<T>(response.Content);
+                return response.Data;
             }
             else
             {
